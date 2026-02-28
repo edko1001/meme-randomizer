@@ -1,25 +1,29 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meme Randomizer</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Meme Randomizer</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-
-<div class="container">
+  <div class="container">
+    <header class="topbar">
+      <div class="title">Meme Randomizer</div>
+      <div class="meta" id="metaText">—</div>
+    </header>
 
     <div class="image-wrapper">
-        <img id="memeImage" src="" alt="Meme">
+      <img id="memeImage" src="" alt="Meme" />
     </div>
 
-    <button id="newMemeBtn">Neues Meme</button>
+    <div class="controls">
+      <button id="prevBtn" class="btn btn-ghost" disabled>← Zurück</button>
+      <button id="newMemeBtn" class="btn btn-primary">Neues Meme</button>
+    </div>
+  </div>
 
-</div>
-
-<script src="script.js?v=2"></script>
-
+  <!-- Cache-Bust: hochzählen wenn du script.js änderst -->
+  <script src="script.js?v=3"></script>
 </body>
-
 </html>
