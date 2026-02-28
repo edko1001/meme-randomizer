@@ -143,57 +143,104 @@ const memes = [
 
 const memeImage = document.getElementById("memeImage");
 const newMemeBtn = document.getElementById("newMemeBtn");
+const prevBtn = document.getElementById("prevBtn");
+const metaText = document.getElementById("metaText");
 
-// Wie viele Klicks zurück ein Bild NICHT nochmal kommen darf:
-const COOLDOWN = 30;
+// Settings
+const COOLDOWN = 30; // erst nach 30 Klicks darf ein Meme wiederkommen
 
-// Merkt sich die letzten Indizes (History)
-let recent = [];
+// State
+let recent = [];          // letzte Indizes (Cooldown)
+let history = [];         // echte Anzeige-History
+let historyPos = -1;      // wo wir in der History stehen
 
-function getRandomIndexWithCooldown() {
+function effectiveCooldown() {
+  return Math.max(0, Math.min(COOLDOWN, memes.length - 1));
+}
+
+function pickNewIndex() {
   const n = memes.length;
   if (n === 0) return -1;
 
-  // Wenn zu wenig Bilder da sind: Cooldown automatisch kleiner machen
-  const effectiveCooldown = Math.min(COOLDOWN, n - 1);
+  const cd = effectiveCooldown();
+  const blocked = new Set(recent.slice(-cd));
 
-  // Set aus gesperrten Indizes (letzte X)
-  const blocked = new Set(recent.slice(-effectiveCooldown));
-
-  // Erlaubte Kandidaten sammeln
+  // Kandidaten = alles was nicht in den letzten cd vorkam
   const candidates = [];
-  for (let i = 0; i < n; i++) {
-    if (!blocked.has(i)) candidates.push(i);
-  }
+  for (let i = 0; i < n; i++) if (!blocked.has(i)) candidates.push(i);
 
-  // Falls (theoretisch) nichts übrig bleibt, fallback: alles erlauben
-  if (candidates.length === 0) {
-    return Math.floor(Math.random() * n);
-  }
-
-  // Zufällig aus den erlaubten auswählen
-  const pick = candidates[Math.floor(Math.random() * candidates.length)];
-  return pick;
+  // Fallback (sollte bei n>cd eigentlich nie leer sein)
+  const pool = candidates.length ? candidates : [...Array(n).keys()];
+  return pool[Math.floor(Math.random() * pool.length)];
 }
 
-function showRandomMeme() {
-  const index = getRandomIndexWithCooldown();
-  if (index === -1) return;
+function updateUI() {
+  const total = memes.length;
+  const shown = historyPos + 1; // position ist 0-based
+  prevBtn.disabled = historyPos <= 0;
 
-  // History updaten
-  recent.push(index);
+  if (historyPos >= 0 && history[historyPos] != null) {
+    const file = memes[history[historyPos]];
+    metaText.textContent = `${shown}/${Math.max(shown, history.length)} • ${file}`;
+  } else {
+    metaText.textContent = `${total} Memes`;
+  }
+}
 
-  // Optional: History nicht unendlich wachsen lassen
-  if (recent.length > 5000) recent = recent.slice(-2000);
+function showIndex(index) {
+  if (index < 0) return;
 
-  // kleiner Shuffle/Fade
-  memeImage.style.opacity = 0;
-
+  // Mini Shuffle Effekt
+  memeImage.classList.remove("show");
   setTimeout(() => {
     memeImage.src = "memes/" + memes[index];
-    memeImage.style.opacity = 1;
-  }, 150);
+  }, 120);
 }
 
-newMemeBtn.addEventListener("click", showRandomMeme);
-showRandomMeme();
+function pushToHistory(index) {
+  // Wenn wir zurückgegangen sind und dann ein neues Meme wählen:
+  // -> "Zukunft" abschneiden
+  if (historyPos < history.length - 1) {
+    history = history.slice(0, historyPos + 1);
+  }
+
+  history.push(index);
+  historyPos = history.length - 1;
+}
+
+function nextMeme() {
+  const index = pickNewIndex();
+  if (index === -1) return;
+
+  // Cooldown-History updaten
+  recent.push(index);
+  if (recent.length > 5000) recent = recent.slice(-2000);
+
+  pushToHistory(index);
+  showIndex(index);
+  updateUI();
+}
+
+function prevMeme() {
+  if (historyPos <= 0) return;
+  historyPos--;
+  showIndex(history[historyPos]);
+  updateUI();
+}
+
+// Wenn ein Bild nicht lädt: automatisch weiter
+memeImage.addEventListener("error", () => {
+  nextMeme();
+});
+
+// Wenn Bild geladen: einblenden
+memeImage.addEventListener("load", () => {
+  memeImage.classList.add("show");
+});
+
+// Buttons
+newMemeBtn.addEventListener("click", nextMeme);
+prevBtn.addEventListener("click", prevMeme);
+
+// Start
+nextMeme();
