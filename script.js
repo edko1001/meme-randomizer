@@ -164,7 +164,7 @@ const prevBtn = document.getElementById("prevBtn");
 const metaText = document.getElementById("metaText");
 
 // Settings
-const COOLDOWN = 30; // erst nach 30 Klicks darf ein Meme wiederkommen
+const COOLDOWN = 80; // erst nach 80 Klicks darf ein Meme wiederkommen
 
 // State
 let recent = [];          // letzte Indizes (Cooldown)
@@ -261,4 +261,5 @@ prevBtn.addEventListener("click", prevMeme);
 
 // Start
 nextMeme();
+
 
