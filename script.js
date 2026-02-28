@@ -144,38 +144,56 @@ const memes = [
 const memeImage = document.getElementById("memeImage");
 const newMemeBtn = document.getElementById("newMemeBtn");
 
-let lastIndex = -1;
+// Wie viele Klicks zurück ein Bild NICHT nochmal kommen darf:
+const COOLDOWN = 30;
 
-function getRandomIndex() {
-    if (memes.length === 0) return -1;
+// Merkt sich die letzten Indizes (History)
+let recent = [];
 
-    let newIndex;
+function getRandomIndexWithCooldown() {
+  const n = memes.length;
+  if (n === 0) return -1;
 
-    do {
-        newIndex = Math.floor(Math.random() * memes.length);
-    } while (memes.length > 1 && newIndex === lastIndex);
+  // Wenn zu wenig Bilder da sind: Cooldown automatisch kleiner machen
+  const effectiveCooldown = Math.min(COOLDOWN, n - 1);
 
-    lastIndex = newIndex;
-    return newIndex;
+  // Set aus gesperrten Indizes (letzte X)
+  const blocked = new Set(recent.slice(-effectiveCooldown));
+
+  // Erlaubte Kandidaten sammeln
+  const candidates = [];
+  for (let i = 0; i < n; i++) {
+    if (!blocked.has(i)) candidates.push(i);
+  }
+
+  // Falls (theoretisch) nichts übrig bleibt, fallback: alles erlauben
+  if (candidates.length === 0) {
+    return Math.floor(Math.random() * n);
+  }
+
+  // Zufällig aus den erlaubten auswählen
+  const pick = candidates[Math.floor(Math.random() * candidates.length)];
+  return pick;
 }
 
 function showRandomMeme() {
-    const index = getRandomIndex();
-    if (index === -1) return;
+  const index = getRandomIndexWithCooldown();
+  if (index === -1) return;
 
-    // kleiner Shuffle-Effekt
-    memeImage.style.opacity = 0;
+  // History updaten
+  recent.push(index);
 
-    setTimeout(() => {
-        memeImage.src = "memes/" + memes[index];
-        memeImage.style.opacity = 1;
-    }, 150);
+  // Optional: History nicht unendlich wachsen lassen
+  if (recent.length > 5000) recent = recent.slice(-2000);
+
+  // kleiner Shuffle/Fade
+  memeImage.style.opacity = 0;
+
+  setTimeout(() => {
+    memeImage.src = "memes/" + memes[index];
+    memeImage.style.opacity = 1;
+  }, 150);
 }
 
 newMemeBtn.addEventListener("click", showRandomMeme);
-
-// Beim Laden direkt erstes Meme anzeigen
-
 showRandomMeme();
-
-
