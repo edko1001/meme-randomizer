@@ -1,0 +1,8 @@
+{
+  "name": "Meme Randomizer",
+  "short_name": "Memes",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#111111",
+  "theme_color": "#111111"
+}
