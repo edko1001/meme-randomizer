@@ -136,23 +136,7 @@ const memes = [
 "131.jpg",
 "132.jpg",
 "133.jpg",
-"134.jpg",
-"135.jpg",
-"136.jpg",
-"137.jpg",
-"138.jpg",
-"139.jpg",
-"140.jpg",
-"141.jpg",
-"142.jpg",
-"143.jpg",
-"144.jpg",
-"145.jpg",
-"146.jpg",
-"147.jpg",
-"148.jpg",
-"149.jpg",
-"150.jpg",
+
 ];
 
 // ===============================
@@ -193,4 +177,5 @@ newMemeBtn.addEventListener("click", showRandomMeme);
 // Beim Laden direkt erstes Meme anzeigen
 
 showRandomMeme();
+
 
